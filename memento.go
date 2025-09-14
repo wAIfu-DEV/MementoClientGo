@@ -13,7 +13,6 @@ import (
 	"os/exec"
 	"path"
 	"sync"
-	"syscall"
 	"time"
 
 	websocket "github.com/gorilla/websocket"
@@ -323,7 +322,7 @@ func NewClient(host string, port int, absPath string) (*Client, error) {
 
 			cmd := exec.Command(pythonPath, mainPath)
 			cmd.Dir = absPath
-			cmd.SysProcAttr.CreationFlags = syscall.CREATE_NEW
+			cmd.SysProcAttr.CreationFlags = 0x00000010
 			cmd.SysProcAttr.HideWindow = false
 
 			err = cmd.Start()
