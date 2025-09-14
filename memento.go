@@ -349,9 +349,10 @@ func NewClient(host string, port int, absPath string) (*Client, error) {
 			}
 
 			if conn == nil {
-				c.backendProc.Kill()
+				cmd.Process.Kill()
 				return nil, lastErr
 			}
+			c.backendProc = cmd.Process
 		}
 	}
 	fmt.Printf("memento: successfully connected.\n")
