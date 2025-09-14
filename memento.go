@@ -103,18 +103,18 @@ func (q *QueriedMemory) ToMap() map[string]any {
 }
 
 type OpenLlmMessage struct {
-	role    string
-	content string
-	name    *string
+	Role    string
+	Content string
+	Name    *string
 }
 
 func (m *OpenLlmMessage) ToMap() map[string]any {
 	ret := map[string]any{
-		"role":    m.role,
-		"content": m.content,
+		"role":    m.Role,
+		"content": m.Content,
 	}
-	if m.name != nil {
-		ret["name"] = *m.name
+	if m.Name != nil {
+		ret["name"] = *m.Name
 	}
 	return ret
 }
