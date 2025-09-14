@@ -10,6 +10,7 @@ import (
 	"math"
 	"net/url"
 	"os"
+	"os/exec"
 	"path"
 	"sync"
 	"syscall"
@@ -320,19 +321,16 @@ func NewClient(host string, port int, absPath string) (*Client, error) {
 
 			fmt.Printf("memento: at %s\n", absPath)
 
-			procAttr := &os.ProcAttr{
-				Dir: absPath,
-				Sys: &syscall.SysProcAttr{
-					CreationFlags: 0x00000010,
-					HideWindow:    false,
-				},
+			cmd := exec.Command("cmd.exe", "/C", fmt.Sprintf("%s %s", pythonPath, mainPath))
+			cmd.Dir = absPath
+
+			cmd.SysProcAttr = &syscall.SysProcAttr{
+				CreationFlags:    0x00000010,
+				HideWindow:       false,
+				NoInheritHandles: true,
 			}
 
-			c.backendProc, err = os.StartProcess(pythonPath, []string{mainPath}, procAttr)
-			//cmd := exec.Command("cmd.exe", "/C", fmt.Sprintf("%s %s", pythonPath, mainPath))
-			//cmd.Dir = absPath
-
-			//err = cmd.Start()
+			err = cmd.Start()
 			if err != nil {
 				return nil, err
 			}
