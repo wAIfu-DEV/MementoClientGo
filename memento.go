@@ -303,7 +303,10 @@ func NewClient(host string, port int, absPath string) (*Client, error) {
 	c.backendProc = nil
 	c.mutex = sync.Mutex{}
 
-	conn, _, err := websocket.DefaultDialer.Dial(c.url.String(), nil)
+	customDialer := *websocket.DefaultDialer
+	customDialer.HandshakeTimeout = 1 * time.Second
+
+	conn, _, err := customDialer.Dial(c.url.String(), nil)
 	if err != nil {
 		if absPath == "" {
 			return nil, err
@@ -321,7 +324,7 @@ func NewClient(host string, port int, absPath string) (*Client, error) {
 			var lastErr error = nil
 
 			for time.Now().Before(deadline) {
-				conn, _, err = websocket.DefaultDialer.Dial(c.url.String(), nil)
+				conn, _, err = customDialer.Dial(c.url.String(), nil)
 				if err == nil {
 					break
 				}
