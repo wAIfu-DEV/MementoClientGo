@@ -328,7 +328,7 @@ func NewClient(host string, port int, absPath string) (*Client, error) {
 				},
 			}
 
-			c.backendProc, err = os.StartProcess("cmd.exe", []string{"/C", fmt.Sprintf("%s %s", pythonPath, mainPath)}, procAttr)
+			c.backendProc, err = os.StartProcess(pythonPath, []string{mainPath}, procAttr)
 			//cmd := exec.Command("cmd.exe", "/C", fmt.Sprintf("%s %s", pythonPath, mainPath))
 			//cmd.Dir = absPath
 
