@@ -10,7 +10,6 @@ import (
 	"math"
 	"net/url"
 	"os"
-	"os/exec"
 	"path"
 	"sync"
 	"syscall"
@@ -321,15 +320,19 @@ func NewClient(host string, port int, absPath string) (*Client, error) {
 
 			fmt.Printf("memento: at %s\n", absPath)
 
-			cmd := exec.Command("cmd.exe", "/C", fmt.Sprintf("%s %s", pythonPath, mainPath))
-			cmd.Dir = absPath
-
-			cmd.SysProcAttr = &syscall.SysProcAttr{
-				CreationFlags: 0x00000010,
-				HideWindow:    false,
+			procAttr := &os.ProcAttr{
+				Dir: absPath,
+				Sys: &syscall.SysProcAttr{
+					CreationFlags: 0x00000010,
+					HideWindow:    false,
+				},
 			}
 
-			err = cmd.Start()
+			c.backendProc, err = os.StartProcess("cmd.exe", []string{"/C", fmt.Sprintf("%s %s", pythonPath, mainPath)}, procAttr)
+			//cmd := exec.Command("cmd.exe", "/C", fmt.Sprintf("%s %s", pythonPath, mainPath))
+			//cmd.Dir = absPath
+
+			//err = cmd.Start()
 			if err != nil {
 				return nil, err
 			}
@@ -348,10 +351,9 @@ func NewClient(host string, port int, absPath string) (*Client, error) {
 			}
 
 			if conn == nil {
-				cmd.Process.Kill()
+				c.backendProc.Kill()
 				return nil, lastErr
 			}
-			c.backendProc = cmd.Process
 		}
 	}
 	fmt.Printf("memento: successfully connected.\n")
