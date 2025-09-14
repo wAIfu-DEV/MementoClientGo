@@ -416,10 +416,7 @@ func (c *Client) Query(
 		"ai_name": collectionName,
 		"from":    fromDb,
 		"n":       n,
-	}
-
-	if user != nil {
-		data["user"] = *user
+		"user":    user,
 	}
 
 	err := c.conn.WriteJSON(data)
@@ -584,9 +581,7 @@ func (c *Client) Clear(
 		"type":    "clear",
 		"ai_name": collectionName,
 		"target":  target,
-	}
-	if user != nil {
-		data["user"] = *user
+		"user":    user,
 	}
 	return c.conn.WriteJSON(data)
 }
