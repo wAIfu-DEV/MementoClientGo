@@ -306,15 +306,23 @@ func NewClient(host string, port int, absPath string) (*Client, error) {
 	customDialer := *websocket.DefaultDialer
 	customDialer.HandshakeTimeout = 1 * time.Second
 
+	fmt.Printf("memento: connecting to %s\n", c.url.String())
+
 	conn, _, err := customDialer.Dial(c.url.String(), nil)
 	if err != nil {
 		if absPath == "" {
 			return nil, err
 		} else {
+			fmt.Printf("memento: failed to connect, launching Memento backend.\n")
+
 			pythonPath := path.Join(absPath, "venv", "Scripts", "python.exe")
 			mainPath := path.Join(absPath, "main.py")
 
+			fmt.Printf("memento: at %s\n", absPath)
+
 			cmd := exec.Command(pythonPath, mainPath)
+			cmd.Dir = absPath
+
 			err = cmd.Start()
 			if err != nil {
 				return nil, err
@@ -329,6 +337,7 @@ func NewClient(host string, port int, absPath string) (*Client, error) {
 					break
 				}
 				lastErr = err
+				fmt.Printf("memento: failed to connect, retrying...\n")
 				time.Sleep(500 * time.Millisecond)
 			}
 
