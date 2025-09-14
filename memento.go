@@ -13,6 +13,7 @@ import (
 	"os/exec"
 	"path"
 	"sync"
+	"syscall"
 	"time"
 
 	websocket "github.com/gorilla/websocket"
@@ -322,6 +323,8 @@ func NewClient(host string, port int, absPath string) (*Client, error) {
 
 			cmd := exec.Command(pythonPath, mainPath)
 			cmd.Dir = absPath
+			cmd.SysProcAttr.CreationFlags = syscall.CREATE_NEW
+			cmd.SysProcAttr.HideWindow = false
 
 			err = cmd.Start()
 			if err != nil {
@@ -331,13 +334,13 @@ func NewClient(host string, port int, absPath string) (*Client, error) {
 			deadline := time.Now().Add(10 * time.Second)
 			var lastErr error = nil
 
+			fmt.Printf("memento: retrying connecting...\n")
 			for time.Now().Before(deadline) {
 				conn, _, err = customDialer.Dial(c.url.String(), nil)
 				if err == nil {
 					break
 				}
 				lastErr = err
-				fmt.Printf("memento: failed to connect, retrying...\n")
 				time.Sleep(500 * time.Millisecond)
 			}
 
@@ -345,10 +348,10 @@ func NewClient(host string, port int, absPath string) (*Client, error) {
 				cmd.Process.Kill()
 				return nil, lastErr
 			}
-
 			c.backendProc = cmd.Process
 		}
 	}
+	fmt.Printf("memento: successfully connected.\n")
 
 	c.conn = conn
 	c.connected = true
