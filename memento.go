@@ -321,7 +321,7 @@ func NewClient(host string, port int, absPath string) (*Client, error) {
 
 			fmt.Printf("memento: at %s\n", absPath)
 
-			cmd := exec.Command(pythonPath, mainPath)
+			cmd := exec.Command("cmd.exe", "/C", fmt.Sprintf("%s %s", pythonPath, mainPath))
 			cmd.Dir = absPath
 
 			cmd.SysProcAttr = &syscall.SysProcAttr{
