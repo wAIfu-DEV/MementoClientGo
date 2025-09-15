@@ -5,6 +5,7 @@ package memento
 import (
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"math"
@@ -259,8 +260,7 @@ func (c *Client) handleMessage(jsonMsg map[string]any, msgType string, msgId str
 
 func (c *Client) recvLoop() {
 	for {
-		var jsonMsg map[string]any
-		err := c.conn.ReadJSON(&jsonMsg)
+		_, p, err := c.conn.ReadMessage()
 		if err != nil {
 			closeErr := &websocket.CloseError{}
 			if errors.As(err, &closeErr) {
@@ -268,11 +268,18 @@ func (c *Client) recvLoop() {
 				c.connected = false
 				c.mutex.Unlock()
 
-				fmt.Printf("mement: connection closed with code: %d and message: %s", closeErr.Code, closeErr.Text)
+				fmt.Printf("memento: connection closed with code: %d and message: %s", closeErr.Code, closeErr.Text)
 				return // quit goroutine
 			}
 
 			fmt.Printf("memento error on recv: %s\n", err.Error())
+			continue
+		}
+
+		var jsonMsg map[string]any
+		err = json.Unmarshal(p, &jsonMsg)
+		if err != nil {
+			fmt.Printf("memento: failed to convert message to json.")
 			continue
 		}
 
@@ -359,6 +366,11 @@ func NewClient(host string, port int, absPath string) (*Client, error) {
 
 	c.conn = conn
 	c.connected = true
+
+	c.conn.SetCloseHandler(func(code int, text string) error {
+		fmt.Printf("memento: connection close with code: %d and reason: %s\n", code, text)
+		return nil
+	})
 
 	go c.recvLoop() // recv handler
 
