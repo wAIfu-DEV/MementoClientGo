@@ -273,7 +273,7 @@ func (c *Client) pingLoop() {
 			fmt.Printf("memento: connection dead, exited ping loop")
 			return
 		}
-		c.conn.SetWriteDeadline(time.Now().Add(writeWait))
+		c.conn.SetWriteDeadline(time.Time{})
 		c.conn.WriteMessage(websocket.PingMessage, nil)
 	}
 }
@@ -286,7 +286,7 @@ func (c *Client) recvLoop() {
 		}
 
 		c.conn.SetReadLimit(maxMessageSize)
-		c.conn.SetReadDeadline(time.Now().Add(pongWait))
+		c.conn.SetReadDeadline(time.Time{})
 		_, p, err := c.conn.ReadMessage()
 		if err != nil {
 			closeErr := &websocket.CloseError{}
@@ -400,7 +400,7 @@ func NewClient(host string, port int, absPath string) (*Client, error) {
 	c.conn.SetPingHandler(func(_ string) error {
 		fmt.Printf("memento: recieved ping.\n")
 
-		c.conn.SetWriteDeadline(time.Now().Add(writeWait))
+		c.conn.SetWriteDeadline(time.Time{})
 		return c.conn.WriteMessage(websocket.PongMessage, nil)
 	})
 
@@ -468,7 +468,7 @@ func (c *Client) Query(
 		"user":    user,
 	}
 
-	c.conn.SetWriteDeadline(time.Now().Add(writeWait))
+	c.conn.SetWriteDeadline(time.Time{})
 	err := c.conn.WriteJSON(data)
 	if err != nil {
 		retErr = err
@@ -514,7 +514,7 @@ func (c *Client) Count(
 	c.handlers.count[uniqueId] = resultChan
 	c.mutex.Unlock() //=========================================================
 
-	c.conn.SetWriteDeadline(time.Now().Add(writeWait))
+	c.conn.SetWriteDeadline(time.Time{})
 	err := c.conn.WriteJSON(map[string]any{
 		"uid":     uniqueId,
 		"type":    "count",
@@ -558,7 +558,7 @@ func (c *Client) Store(
 		mems = append(mems, mem.ToMap())
 	}
 
-	c.conn.SetWriteDeadline(time.Now().Add(writeWait))
+	c.conn.SetWriteDeadline(time.Time{})
 	return c.conn.WriteJSON(map[string]any{
 		"uid":      c.generateUid(),
 		"type":     "store",
@@ -587,7 +587,7 @@ func (c *Client) Process(
 		ctxMaps[i] = msg.ToMap()
 	}
 
-	c.conn.SetWriteDeadline(time.Now().Add(writeWait))
+	c.conn.SetWriteDeadline(time.Time{})
 	return c.conn.WriteJSON(map[string]any{
 		"uid":      c.generateUid(),
 		"type":     "process",
@@ -602,7 +602,7 @@ func (c *Client) CloseBackend() error {
 		return errors.New("memento: client not connected")
 	}
 
-	c.conn.SetWriteDeadline(time.Now().Add(writeWait))
+	c.conn.SetWriteDeadline(time.Time{})
 	return c.conn.WriteJSON(map[string]any{
 		"uid":  c.generateUid(),
 		"type": "close",
@@ -614,7 +614,7 @@ func (c *Client) Evict(collectionName string) error {
 		return errors.New("memento: client not connected")
 	}
 
-	c.conn.SetWriteDeadline(time.Now().Add(writeWait))
+	c.conn.SetWriteDeadline(time.Time{})
 	return c.conn.WriteJSON(map[string]any{
 		"uid":     c.generateUid(),
 		"type":    "evict",
@@ -639,6 +639,6 @@ func (c *Client) Clear(
 		"user":    user,
 	}
 
-	c.conn.SetWriteDeadline(time.Now().Add(writeWait))
+	c.conn.SetWriteDeadline(time.Time{})
 	return c.conn.WriteJSON(data)
 }
