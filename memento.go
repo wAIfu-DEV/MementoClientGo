@@ -328,7 +328,7 @@ func NewClient(host string, port int, absPath string) (*Client, error) {
 	c.mutex = sync.Mutex{}
 
 	customDialer := *websocket.DefaultDialer
-	customDialer.HandshakeTimeout = 1 * time.Second
+	customDialer.HandshakeTimeout = 3 * time.Second
 
 	fmt.Printf("memento: connecting to %s\n", c.url.String())
 
@@ -388,9 +388,9 @@ func NewClient(host string, port int, absPath string) (*Client, error) {
 		return &websocket.CloseError{Code: code, Text: text}
 	})
 
-	c.conn.SetPongHandler(func(_ string) error {
+	c.conn.SetPingHandler(func(_ string) error {
 		fmt.Printf("memento: ping frame\n")
-		return nil
+		return c.conn.WriteControl(websocket.PongMessage, []byte{}, time.Now().Add(5*time.Second))
 	})
 
 	c.conn.SetPongHandler(func(_ string) error {
@@ -399,7 +399,7 @@ func NewClient(host string, port int, absPath string) (*Client, error) {
 	})
 
 	go c.recvLoop() // recv handler
-	//go c.pingLoop() // ping loop
+	go c.pingLoop() // ping loop
 
 	return c, nil
 }
