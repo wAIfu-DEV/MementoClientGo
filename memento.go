@@ -397,15 +397,16 @@ func NewClient(host string, port int, absPath string) (*Client, error) {
 		return &websocket.CloseError{Code: code, Text: text}
 	})
 
-	c.conn.SetPingHandler(func(data string) error {
-		fmt.Printf("memento: recieved ping.\n")
+	/*
+		c.conn.SetPingHandler(func(data string) error {
+			fmt.Printf("memento: recieved ping.\n")
 
-		err := c.conn.WriteControl(websocket.PongMessage, []byte(data), time.Time{})
-		if err != nil {
-			fmt.Printf("memento ping error: %s", err.Error())
-		}
-		return nil
-	})
+			err := c.conn.WriteControl(websocket.PongMessage, []byte(data), time.Time{})
+			if err != nil {
+				fmt.Printf("memento ping error: %s", err.Error())
+			}
+			return nil
+		})*/
 
 	c.conn.SetPongHandler(func(_ string) error {
 		return nil
