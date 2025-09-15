@@ -76,8 +76,8 @@ func (m *Memory) ToMap() map[string]any {
 }
 
 type QueriedMemory struct {
-	memory   Memory
-	distance float64
+	Memory   Memory
+	Distance float64
 }
 
 func (q *QueriedMemory) SetFromMap(m map[string]any) error {
@@ -85,11 +85,11 @@ func (q *QueriedMemory) SetFromMap(m map[string]any) error {
 	if !ok {
 		return errors.New("missing field \"memory\" from received queried memory object")
 	}
-	err := q.memory.SetFromMap(memObj)
+	err := q.Memory.SetFromMap(memObj)
 	if err != nil {
 		return err
 	}
-	if q.distance, ok = m["distance"].(float64); !ok {
+	if q.Distance, ok = m["distance"].(float64); !ok {
 		return errors.New("missing field \"distance\" from received queried memory object")
 	}
 	return nil
@@ -97,8 +97,8 @@ func (q *QueriedMemory) SetFromMap(m map[string]any) error {
 
 func (q *QueriedMemory) ToMap() map[string]any {
 	return map[string]any{
-		"memory":   q.memory.ToMap(),
-		"distance": q.distance,
+		"memory":   q.Memory.ToMap(),
+		"distance": q.Distance,
 	}
 }
 
