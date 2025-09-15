@@ -258,8 +258,24 @@ func (c *Client) handleMessage(jsonMsg map[string]any, msgType string, msgId str
 	}
 }
 
+func (c *Client) pingLoop() {
+	for {
+		if c.isConnDead() {
+			return
+		}
+
+		_ = c.conn.WriteControl(websocket.PingMessage, []byte{}, time.Now().Add(5*time.Second))
+		time.Sleep(5 * time.Second)
+	}
+}
+
 func (c *Client) recvLoop() {
 	for {
+		if c.isConnDead() {
+			fmt.Printf("memento: cannot read from closed connection, ending recv loop.")
+			return
+		}
+
 		_, p, err := c.conn.ReadMessage()
 		if err != nil {
 			closeErr := &websocket.CloseError{}
@@ -369,10 +385,21 @@ func NewClient(host string, port int, absPath string) (*Client, error) {
 
 	c.conn.SetCloseHandler(func(code int, text string) error {
 		fmt.Printf("memento: connection close with code: %d and reason: %s\n", code, text)
+		return &websocket.CloseError{Code: code, Text: text}
+	})
+
+	c.conn.SetPongHandler(func(_ string) error {
+		fmt.Printf("memento: ping frame\n")
+		return nil
+	})
+
+	c.conn.SetPongHandler(func(_ string) error {
+		fmt.Printf("memento: pong frame\n")
 		return nil
 	})
 
 	go c.recvLoop() // recv handler
+	//go c.pingLoop() // ping loop
 
 	return c, nil
 }
