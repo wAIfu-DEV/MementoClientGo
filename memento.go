@@ -401,7 +401,11 @@ func NewClient(host string, port int, absPath string) (*Client, error) {
 		fmt.Printf("memento: recieved ping.\n")
 
 		c.conn.SetWriteDeadline(time.Time{})
-		return c.conn.WriteMessage(websocket.PongMessage, nil)
+		err := c.conn.WriteControl(websocket.PongMessage, nil, time.Time{})
+		if err != nil {
+			fmt.Printf("memento ping error: %s", err.Error())
+		}
+		return nil
 	})
 
 	c.conn.SetPongHandler(func(_ string) error {
