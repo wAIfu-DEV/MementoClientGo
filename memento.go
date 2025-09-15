@@ -409,7 +409,7 @@ func NewClient(host string, port int, absPath string) (*Client, error) {
 	})
 
 	go c.recvLoop() // recv handler
-	go c.pingLoop() // ping loop
+	//go c.pingLoop() // ping loop
 
 	return c, nil
 }
