@@ -264,7 +264,7 @@ func (c *Client) pingLoop() {
 			return
 		}
 
-		_ = c.conn.WriteControl(websocket.PingMessage, []byte{}, time.Now().Add(5*time.Second))
+		_ = c.conn.WriteControl(websocket.PingMessage, []byte{}, time.Time{})
 		time.Sleep(10 * time.Second)
 	}
 }
@@ -272,7 +272,7 @@ func (c *Client) pingLoop() {
 func (c *Client) recvLoop() {
 	for {
 		if c.isConnDead() {
-			fmt.Printf("memento: cannot read from closed connection, ending recv loop.")
+			fmt.Printf("memento: cannot read from closed connection, ending recv loop.\n")
 			return
 		}
 
@@ -293,7 +293,7 @@ func (c *Client) recvLoop() {
 		var jsonMsg map[string]any
 		err = json.Unmarshal(p, &jsonMsg)
 		if err != nil {
-			fmt.Printf("memento: failed to convert message to json.")
+			fmt.Printf("memento: failed to convert message to json.\n")
 			continue
 		}
 
@@ -387,12 +387,15 @@ func NewClient(host string, port int, absPath string) (*Client, error) {
 	})
 
 	c.conn.SetPingHandler(func(_ string) error {
-		return c.conn.WriteControl(websocket.PongMessage, []byte{}, time.Now().Add(5*time.Second))
+		fmt.Printf("memento: received ping.\n")
+		return c.conn.WriteControl(websocket.PongMessage, []byte{}, time.Time{})
 	})
 
 	c.conn.SetPongHandler(func(_ string) error {
 		return nil
 	})
+
+	c.conn.SetWriteDeadline(time.Time{})
 
 	go c.recvLoop() // recv handler
 	go c.pingLoop() // ping loop
