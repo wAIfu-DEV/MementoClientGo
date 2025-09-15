@@ -389,12 +389,10 @@ func NewClient(host string, port int, absPath string) (*Client, error) {
 	})
 
 	c.conn.SetPingHandler(func(_ string) error {
-		fmt.Printf("memento: ping frame\n")
 		return c.conn.WriteControl(websocket.PongMessage, []byte{}, time.Now().Add(5*time.Second))
 	})
 
 	c.conn.SetPongHandler(func(_ string) error {
-		fmt.Printf("memento: pong frame\n")
 		return nil
 	})
 
