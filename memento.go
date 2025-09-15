@@ -20,57 +20,57 @@ import (
 )
 
 type Memory struct {
-	id      string
-	content string
-	time    int64
+	Id      string
+	Content string
+	Time    int64
 
-	user     *string
-	score    *float64
-	lifetime *int64
+	User     *string
+	Score    *float64
+	Lifetime *int64
 }
 
 func (m *Memory) SetFromMap(obj map[string]any) error {
 	var ok bool
-	if m.id, ok = obj["id"].(string); !ok {
+	if m.Id, ok = obj["id"].(string); !ok {
 		return errors.New("missing field \"id\" from received memory object")
 	}
-	if m.content, ok = obj["content"].(string); !ok {
+	if m.Content, ok = obj["content"].(string); !ok {
 		return errors.New("missing field \"content\" from received memory object")
 	}
 	if fltTime, ok := obj["time"].(float64); ok {
-		m.time = int64(math.Round(fltTime))
+		m.Time = int64(math.Round(fltTime))
 	} else {
 		return errors.New("missing field \"time\" from received memory object")
 	}
 
 	if maybeUser, ok := obj["user"].(string); ok {
-		m.user = &maybeUser
+		m.User = &maybeUser
 	}
 	if maybeScore, ok := obj["score"].(float64); ok {
-		m.score = &maybeScore
+		m.Score = &maybeScore
 	}
 	if maybeLifetime, ok := obj["lifetime"].(float64); ok {
 		iVal := int64(math.Round(maybeLifetime))
-		m.lifetime = &iVal
+		m.Lifetime = &iVal
 	}
 	return nil
 }
 
 func (m *Memory) ToMap() map[string]any {
 	var ret map[string]any = map[string]any{
-		"id":      m.id,
-		"content": m.content,
-		"time":    m.time,
+		"id":      m.Id,
+		"content": m.Content,
+		"time":    m.Time,
 	}
 
-	if m.user != nil {
-		ret["user"] = *m.user
+	if m.User != nil {
+		ret["user"] = *m.User
 	}
-	if m.score != nil {
-		ret["score"] = *m.score
+	if m.Score != nil {
+		ret["score"] = *m.Score
 	}
-	if m.lifetime != nil {
-		ret["lifetime"] = *m.lifetime
+	if m.Lifetime != nil {
+		ret["lifetime"] = *m.Lifetime
 	}
 	return ret
 }
