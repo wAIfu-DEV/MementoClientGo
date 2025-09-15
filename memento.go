@@ -265,7 +265,7 @@ func (c *Client) pingLoop() {
 		}
 
 		_ = c.conn.WriteControl(websocket.PingMessage, []byte{}, time.Now().Add(5*time.Second))
-		time.Sleep(5 * time.Second)
+		time.Sleep(10 * time.Second)
 	}
 }
 
@@ -283,8 +283,6 @@ func (c *Client) recvLoop() {
 				c.mutex.Lock()
 				c.connected = false
 				c.mutex.Unlock()
-
-				fmt.Printf("memento: connection closed with code: %d and message: %s", closeErr.Code, closeErr.Text)
 				return // quit goroutine
 			}
 
@@ -384,7 +382,7 @@ func NewClient(host string, port int, absPath string) (*Client, error) {
 	c.connected = true
 
 	c.conn.SetCloseHandler(func(code int, text string) error {
-		fmt.Printf("memento: connection close with code: %d and reason: %s\n", code, text)
+		fmt.Printf("memento: connection closed with code: %d and reason: %s\n", code, text)
 		return &websocket.CloseError{Code: code, Text: text}
 	})
 
