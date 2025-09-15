@@ -276,6 +276,8 @@ func (c *Client) recvLoop() {
 			return
 		}
 
+		c.conn.SetReadDeadline(time.Time{})
+
 		_, p, err := c.conn.ReadMessage()
 		if err != nil {
 			closeErr := &websocket.CloseError{}
