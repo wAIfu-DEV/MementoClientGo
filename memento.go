@@ -367,7 +367,7 @@ func NewClient(host string, port int, absPath string) (*Client, error) {
 				return nil, err
 			}
 
-			deadline := time.Now().Add(10 * time.Second)
+			deadline := time.Now().Add(30 * time.Second)
 			var lastErr error = nil
 
 			fmt.Printf("memento: retrying connecting...\n")
@@ -381,6 +381,7 @@ func NewClient(host string, port int, absPath string) (*Client, error) {
 			}
 
 			if conn == nil {
+				fmt.Printf("memento: launch and connection failure.\n")
 				cmd.Process.Kill()
 				return nil, lastErr
 			}
